@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd:latest
+    command: >-
+      /usr/local/bin/etcd
+      -name node1
+      -advertise-client-urls http://etcd:2379
+      -listen-client-urls http://0.0.0.0:2379
+      -initial-advertise-peer-urls http://etcd:2380
+      -listen-peer-urls http://0.0.0.0:2380
+      -initial-cluster node1=http://etcd:2380
+      -cors="*"
+  texts-service:
+    image: blazrupnik/rso-texts:1.0.0-SNAPSHOT
+    ports:
+      - 8080:8080
+    environment:
+      KUMULUZEE_DATASOURCES0_CONNECTIONURL: jdbc:postgresql://text-metadata-db:5432/text-metadata
+      KUMULUZEE_DATASOURCES0_USERNAME: dbuser
+      KUMULUZEE_DATASOURCES0_PASSWORD: postgres
+      KUMULUZEE_CONFIG_ETCD_HOSTS: http://etcd:2379
+      KUMULUZEE_DISCOVERY_ETCD_HOSTS: http://etcd:2379
+    depends_on:
+      - text-metadata-db
+      - ratings-service
+      - etcd
+
+  text-metadata-db:
+    image: postgres:10.5
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: text-metadata
+
+  ratings-service:
+    image: blazrupnik/rso-ratings:1.0.0-SNAPSHOT
+    ports:
+      - 8081:8081
+    environment:
+      KUMULUZEE_DATASOURCES0_CONNECTIONURL: jdbc:postgresql://rating-metadata-db:5432/rating-metadata
+      KUMULUZEE_DATASOURCES0_USERNAME: dbuser
+      KUMULUZEE_DATASOURCES0_PASSWORD: postgres
+      KUMULUZEE_CONFIG_ETCD_HOSTS: http://etcd:2379
+      KUMULUZEE_DISCOVERY_ETCD_HOSTS: http://etcd:2379
+    depends_on:
+      - rating-metadata-db
+      - etcd
+
+  rating-metadata-db:
+    image: postgres:10.5
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rating-metadata

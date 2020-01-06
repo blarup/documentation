@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ratings-deployment
+  name: comments-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ratings
+      app: comments
   template:
     metadata:
       labels:
-        app: ratings
+        app: comments
     spec:
       containers:
-        - name: ratings
-          image: blazrupnik/rso-ratings:1.0.0-SNAPSHOT
+        - name: comments
+          image: blazrupnik/rso-comments:1.0.0-SNAPSHOT
           imagePullPolicy: Always
           ports:
-            - containerPort: 8081
+            - containerPort: 8082
               name: server
               protocol: TCP
           livenessProbe:
@@ -37,12 +37,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ratings
+  name: comments
 spec:
   type: LoadBalancer
   ports:
-    - port: 8081
+    - port: 8082
       protocol: TCP
-      targetPort: 8081
+      targetPort: 8082
   selector:
-    app: ratings
+    app: comments

@@ -1,0 +1,5 @@
+//create cluster
+gcloud container clusters create thoughts-cluster-1
+
+//credentials
+gcloud container clusters get-credentials thoughts-cluster-1

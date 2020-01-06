@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cloudsql-proxy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cloudsql-proxy
+        unit: mycloudsql
+      spec:
+        containers:
+          - name: cloudsql-proxy
+            image: gcr.io/cloudsql-docker/gce-proxy:1.11
+
