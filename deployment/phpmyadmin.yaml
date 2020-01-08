@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+        - name: phpmyadmin
+          image: phpmyadmin/phpmyadmin:4.9
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: server
+              protocol: TCP
+          env:
+            - name: PMA_HOST
+              value: 10.87.192.3
+            - name: PMA_USER
+              value: root
+            - name: PMA_PASSWORD
+              value: 8MC17rIF68NyyoBC
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: server
+  selector:
+    app: phpmyadmin

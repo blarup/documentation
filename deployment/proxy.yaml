@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: proxy
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /texts(/|$)(.*)
+            backend:
+              serviceName: texts
+              servicePort: 8080
+          - path: /ratings(/|$)(.*)
+            backend:
+              serviceName: ratings
+              servicePort: 8081
+          - path: /comments(/|$)(.*)
+            backend:
+              serviceName: comments
+              servicePort: 8082
