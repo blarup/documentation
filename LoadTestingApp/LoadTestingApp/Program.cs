@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LoadTestingApp
 {
@@ -9,14 +11,15 @@ namespace LoadTestingApp
     {
         static void Main(string[] args)
         {
+            List<int> requests = new List<int>();
+
+            for (int i = 0; i < 500; i++)
+                requests.Add(i);
+
             Console.WriteLine("Meant for scaling test of microservices running on kubernetes");
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            for(int i=0; i<10; i++)
-            {
-                DownloadUrl("https://35.197.13.255/comments/v1/comments");
-                Console.WriteLine(i);
-                Thread.Sleep(500);
-            }
+            Test(requests, 10, "https://35.197.13.255/ratings/v1/ratings");
+            Console.WriteLine("Finished");
         }
 
         public static string DownloadUrl(string url)
@@ -24,6 +27,24 @@ namespace LoadTestingApp
             return new System.Net.WebClient().DownloadString(url);
         }
 
+        private static void Test(List<int> requests, int threads, string url)
+        {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            Parallel.ForEach(requests, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = threads
+            }, (item) =>
+                    {                     
+                        try
+                        {
+                            DownloadUrl(url);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                    });
+        }
 
     }
 }
